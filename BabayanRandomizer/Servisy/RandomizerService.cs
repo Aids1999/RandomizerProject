@@ -3,42 +3,31 @@ using BabayanRandomizer.Modeli;
 
 namespace BabayanRandomizer.Servisy
 {
-    // Сервис для случайного выбора
     public class RandomizerService : IRandomSelection
     {
         private readonly SelectionHistory _history;
-        private readonly Random _generator;
+        private readonly Random _random;
 
         public RandomizerService(SelectionHistory history)
         {
-            _history = history ?? throw new ArgumentNullException(nameof(history));
-            _generator = new Random();
+            _history = history;
+            _random = new Random();
         }
 
         public SelectionResult PickRandom(List<Option> options)
         {
-            return PickRandom(options, new List<Option>());
-        }
+            if (options.Count == 0)
+            {
+                var fail = new SelectionResult("Список пуст.");
+                _history.AddEntry(fail);
+                return fail;
+            }
 
-        public SelectionResult PickRandom(List<Option> options, List<Option> excluded)
-        {
-            if (options == null || options.Count == 0)
-                return RecordAndReturn(new SelectionResult("Список пуст."));
+            int index = _random.Next(0, options.Count);
+            var selected = options[index];
+            selected.IsSelected = true;
 
-            var excludedIds = excluded?.Select(v => v.Id).ToHashSet() ?? new HashSet<Guid>();
-            var available = options.Where(v => !excludedIds.Contains(v.Id) && !v.IsSelected).ToList();
-
-            if (available.Count == 0)
-                return RecordAndReturn(new SelectionResult("Нет доступных вариантов."));
-
-            var selected = available[_generator.Next(0, available.Count)];
-            selected.MarkAsSelected();
-
-            return RecordAndReturn(new SelectionResult(selected, available.Count));
-        }
-
-        private SelectionResult RecordAndReturn(SelectionResult result)
-        {
+            var result = new SelectionResult(selected);
             _history.AddEntry(result);
             return result;
         }

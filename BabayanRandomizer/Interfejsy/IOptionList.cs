@@ -1,6 +1,5 @@
 namespace BabayanRandomizer.Interfejsy
 {
-    // Интерфейс для работы со списком
     public interface IOptionList<T>
     {
         int Count { get; }

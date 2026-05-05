@@ -6,12 +6,17 @@ namespace BabayanRandomizer.Servisy
     public class RandomizerService : IRandomSelection
     {
         private readonly SelectionHistory _history;
-        private readonly Random _random;
+        private ISelectionStrategy _strategy;
 
-        public RandomizerService(SelectionHistory history)
+        public RandomizerService(SelectionHistory history, ISelectionStrategy strategy)
         {
             _history = history;
-            _random = new Random();
+            _strategy = strategy;
+        }
+
+        public void SetStrategy(ISelectionStrategy strategy)
+        {
+            _strategy = strategy;
         }
 
         public SelectionResult PickRandom(List<Option> options)
@@ -23,8 +28,12 @@ namespace BabayanRandomizer.Servisy
                 return fail;
             }
 
-            int index = _random.Next(0, options.Count);
-            var selected = options[index];
+            var selected = _strategy.Select(options);
+            if (selected == null)
+            {
+                return new SelectionResult("Ошибка выбора.");
+            }
+
             selected.IsSelected = true;
 
             var result = new SelectionResult(selected);

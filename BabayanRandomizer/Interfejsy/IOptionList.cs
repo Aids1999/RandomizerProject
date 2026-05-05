@@ -1,7 +1,10 @@
+using System;
+
 namespace BabayanRandomizer.Interfejsy
 {
     public interface IOptionList<T>
     {
+        event Action OnOptionsChanged;
         int Count { get; }
         void Add(T element);
         void RemoveAt(int index);

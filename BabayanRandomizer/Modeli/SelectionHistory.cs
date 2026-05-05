@@ -4,6 +4,8 @@ namespace BabayanRandomizer.Modeli
     {
         private List<SelectionResult> _entries;
 
+        public event Action? OnHistoryChanged;
+
         public int Count => _entries.Count;
 
         public SelectionHistory()
@@ -14,6 +16,7 @@ namespace BabayanRandomizer.Modeli
         public void AddEntry(SelectionResult result)
         {
             _entries.Add(result);
+            OnHistoryChanged?.Invoke();
         }
 
         public List<SelectionResult> GetAll()

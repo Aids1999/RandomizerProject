@@ -3,6 +3,8 @@ using Avalonia.Interactivity;
 using BabayanRandomizer.Modeli;
 using BabayanRandomizer.Interfejsy;
 using BabayanRandomizer.Servisy;
+using BabayanRandomizer.Commands;
+using System.Linq;
 
 namespace BabayanRandomizer;
 
@@ -17,16 +19,23 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _history = new SelectionHistory();
-        _service = new RandomizerService(_history);
+        
+        // Паттерн Стратегия: создаем и передаем стратегию в сервис
+        var strategy = new PureRandomStrategy();
+        _service = new RandomizerService(_history, strategy);
+        
         _list = new OptionList("Что поесть сегодня?");
 
+        // Паттерн Наблюдатель: подписываемся на изменения моделей
+        _list.OnOptionsChanged += RefreshOptions;
+        _history.OnHistoryChanged += RefreshHistory;
+
+        // Начальные данные
         _list.Add(new Option("Пицца"));
         _list.Add(new Option("Суши"));
         _list.Add(new Option("Бургер"));
         _list.Add(new Option("Шаурма"));
         _list.Add(new Option("Паста"));
-
-        RefreshOptions();
     }
 
     private void RefreshOptions()
@@ -42,35 +51,38 @@ public partial class MainWindow : Window
     private void AddOption(object? sender, RoutedEventArgs e)
     {
         var text = InputField.Text?.Trim();
-        if (!string.IsNullOrEmpty(text))
-        {
-            _list.Add(new Option(text));
-            InputField.Text = "";
-            RefreshOptions();
-        }
+        // Паттерн Команда: инкапсулируем действие добавления
+        var command = new AddOptionCommand(_list, text);
+        command.Execute();
+        
+        InputField.Text = "";
+        // RefreshOptions() больше не нужен здесь, сработает событие
     }
 
     private void RemoveOption(object? sender, RoutedEventArgs e)
     {
         int index = OptionsList.SelectedIndex;
-        if (index >= 0)
-        {
-            _list.RemoveAt(index);
-            RefreshOptions();
-        }
+        // Паттерн Команда: инкапсулируем действие удаления
+        var command = new RemoveOptionCommand(_list, index);
+        command.Execute();
     }
 
     private void PickRandom(object? sender, RoutedEventArgs e)
     {
-        var result = _service.PickRandom(_list.GetAll());
-        ResultLabel.Text = $"Результат: {result.Message}";
-        RefreshHistory();
+        // Паттерн Команда: инкапсулируем выбор рандома
+        var command = new PickRandomCommand(_service, _list, result => 
+        {
+            ResultLabel.Text = $"Результат: {result.Message}";
+        });
+        command.Execute();
     }
 
     private void ClearAll(object? sender, RoutedEventArgs e)
     {
-        _list.ClearAll();
-        RefreshOptions();
+        // Паттерн Команда: инкапсулируем очистку
+        var command = new ClearOptionsCommand(_list);
+        command.Execute();
+        
         ResultLabel.Text = "Результат: —";
     }
 }

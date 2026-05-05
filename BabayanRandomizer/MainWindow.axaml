@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="BabayanRandomizer.MainWindow"
+        Title="Рандомайзер"
+        Width="480" Height="480"
+        WindowStartupLocation="CenterScreen">
+
+    <StackPanel Margin="15">
+
+        <TextBlock Text="Варианты:" Margin="0,0,0,5" />
+
+        <ListBox x:Name="OptionsList" Height="150" />
+
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBox x:Name="InputField"
+                     Width="310"
+                     Watermark="Введите вариант..." />
+            <Button Content="Добавить"
+                    Click="AddOption"
+                    Margin="8,0,0,0" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+            <Button Content="Удалить выбранный" Click="RemoveOption" />
+            <Button Content="Случайный выбор"   Click="PickRandom"   Margin="8,0,0,0" />
+            <Button Content="Очистить всё"       Click="ClearAll"     Margin="8,0,0,0" />
+        </StackPanel>
+
+        <TextBlock x:Name="ResultLabel"
+                   Text="Результат: —"
+                   Margin="0,12,0,0" />
+
+        <TextBlock Text="История:" Margin="0,12,0,5" />
+
+        <ListBox x:Name="HistoryList" Height="120" />
+
+    </StackPanel>
+
+</Window>
